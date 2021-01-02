@@ -6,7 +6,6 @@ import com.udemy.springboot.api.rest.reactor.app.service.IItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
@@ -26,7 +25,7 @@ public class ItemHandler {
     public Mono<ServerResponse> itemDetail(ServerRequest serverRequest) {
         String id = serverRequest.pathVariable("id");
         return iItemService.findById(id).flatMap(itemFind -> ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON_UTF8).body(BodyInserters.fromObject(itemFind)))
+                .contentType(MediaType.APPLICATION_JSON_UTF8).bodyValue(itemFind))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 
