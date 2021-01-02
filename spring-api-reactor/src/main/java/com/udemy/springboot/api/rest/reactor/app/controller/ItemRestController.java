@@ -48,14 +48,14 @@ public class ItemRestController {
 
     @GetMapping
     public Mono<ResponseEntity<Flux<Item>>> getItems() {
-        return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(iItemService.findAll()));
+        return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(iItemService.findAll()));
     }
 
     @GetMapping(DataCommon.ID)
     public Mono<ResponseEntity<Item>> getItem(@PathVariable String id) {
-        return iItemService.findById(id).map(item -> {
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(item);
-        }).defaultIfEmpty(ResponseEntity.notFound().build());
+        return iItemService.findById(id)
+                .map(item -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(item))
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -63,12 +63,9 @@ public class ItemRestController {
         if (item.getCreateAt() == null) {
             item.setCreateAt(new Date());
         }
-        return iItemService.save(item).map(itemSaved -> {
-            return ResponseEntity
-                    .created(URI
-                            .create(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.SLASH).concat(itemSaved.getId())))
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).body(itemSaved);
-        });
+        return iItemService.save(item).map(itemSaved -> ResponseEntity
+                .created(URI.create(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.SLASH).concat(itemSaved.getId())))
+                .contentType(MediaType.APPLICATION_JSON).body(itemSaved));
     }
 
     @PostMapping(DataCommon.POST_ITEM_VALID)
@@ -78,25 +75,19 @@ public class ItemRestController {
             if (item.getCreateAt() == null)
                 item.setCreateAt(new Date());
             return item;
-        }).flatMap(iItemService::save)
-        .map(itemSaved -> {
+        }).flatMap(iItemService::save).map(itemSaved -> {
             response.put("item", itemSaved);
             return ResponseEntity
                     .created(URI
                             .create(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.SLASH).concat(itemSaved.getId())))
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).body(response);
-        })
-        .onErrorResume(error -> {
-            return Mono.just(error).cast(WebExchangeBindException.class)
-            .flatMap(exception -> Mono.just(exception.getFieldErrors()))
-            .flatMapMany(Flux::fromIterable)
-            .map(fieldError -> "Field name:"+fieldError.getField()+" "+fieldError.getDefaultMessage())
-            .collectList()
-            .flatMap(list -> {
-                response.put("errors", list);
-                return Mono.just(ResponseEntity.badRequest().body(response));
-            });
-        });
+                    .contentType(MediaType.APPLICATION_JSON).body(response);
+        }).onErrorResume(error -> Mono.just(error).cast(WebExchangeBindException.class)
+                .flatMap(exception -> Mono.just(exception.getFieldErrors())).flatMapMany(Flux::fromIterable)
+                .map(fieldError -> "Field name:" + fieldError.getField() + " " + fieldError.getDefaultMessage())
+                .collectList().flatMap(list -> {
+                    response.put("errors", list);
+                    return Mono.just(ResponseEntity.badRequest().body(response));
+                }));
     }
 
     @PostMapping(DataCommon.POST_ITEM_VALID_V2)
@@ -105,13 +96,9 @@ public class ItemRestController {
             if (item.getCreateAt() == null)
                 item.setCreateAt(new Date());
             return item;
-        }).flatMap(iItemService::save)
-        .map(itemSaved ->
-            ResponseEntity
-                    .created(URI
-                            .create(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.SLASH).concat(itemSaved.getId())))
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).body(itemSaved)
-        );
+        }).flatMap(iItemService::save).map(itemSaved -> ResponseEntity
+                .created(URI.create(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.SLASH).concat(itemSaved.getId())))
+                .contentType(MediaType.APPLICATION_JSON).body(itemSaved));
     }
 
     @ExceptionHandler(WebExchangeBindException.class)
@@ -119,10 +106,8 @@ public class ItemRestController {
     public Mono<ResponseEntity<ErrorResponse>> handleExceptionValidV2(WebExchangeBindException ex) {
         return Mono.just(ex).flatMap(exception -> Mono.just(exception.getFieldErrors())).flatMapMany(Flux::fromIterable)
                 .map(fieldError -> new ErrorBadRequestResponse(fieldError, HttpStatus.BAD_REQUEST)).collectList()
-                .flatMap(list -> {
-                    return Mono.just(
-                            ResponseEntity.badRequest().body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), list)));
-                });
+                .flatMap(list -> Mono.just(
+                        ResponseEntity.badRequest().body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), list))));
     }
 
     @PostMapping(DataCommon.POST_ITEM_V2)
@@ -131,16 +116,14 @@ public class ItemRestController {
             item.setCreateAt(new Date());
         }
         item.setPhoto(UUID.randomUUID().toString().concat("-")
-                    .concat(filePart.filename().replace(" ", "_").replace(":", "").replace("//", "")));
+                .concat(filePart.filename().replace(" ", "_").replace(":", "").replace("//", "")));
         return filePart.transferTo(new File(configUploadPath.concat("/").concat(item.getPhoto())))
-        .then(iItemService.save(item))
-        .map(itemSaved -> {
-            return ResponseEntity
-                    .created(URI
-                            .create(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.SLASH).concat(itemSaved.getId())))
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).body(itemSaved);
-        })
-        .defaultIfEmpty(ResponseEntity.notFound().build());
+                .then(iItemService.save(item))
+                .map(itemSaved -> ResponseEntity
+                        .created(URI.create(
+                                DataCommon.COLLECTION_API_ITEM.concat(DataCommon.SLASH).concat(itemSaved.getId())))
+                        .contentType(MediaType.APPLICATION_JSON).body(itemSaved))
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PostMapping(DataCommon.UPLOAD_ID)
@@ -153,7 +136,7 @@ public class ItemRestController {
             return filePart.transferTo(new File(configUploadPath.concat("/").concat(itemFind.getPhoto())))
                     .then(iItemService.save(itemFind));
         }).map(ResponseEntity::ok).defaultIfEmpty(ResponseEntity.notFound().build())
-        .defaultIfEmpty(ResponseEntity.notFound().build());
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @PutMapping(DataCommon.ID)
@@ -163,19 +146,17 @@ public class ItemRestController {
             itemFind.setPrice(item.getPrice());
             itemFind.setBrand(item.getBrand());
             return iItemService.save(itemFind);
-        }).map(itemSaved -> {
-            return ResponseEntity
-                    .created(URI
-                            .create(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.SLASH).concat(itemSaved.getId())))
-                    .contentType(MediaType.APPLICATION_JSON_UTF8).body(itemSaved);
-        }).defaultIfEmpty(ResponseEntity.notFound().build());
+        }).map(itemSaved -> ResponseEntity
+                .created(URI.create(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.SLASH).concat(itemSaved.getId())))
+                .contentType(MediaType.APPLICATION_JSON).body(itemSaved))
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping(DataCommon.ID)
     public Mono<ResponseEntity<Object>> deleteItem(@PathVariable String id) {
-        return iItemService.findById(id).flatMap(itemFind -> {
-            return iItemService.delete(itemFind).then(Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
-        }).defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return iItemService.findById(id).flatMap(
+                itemFind -> iItemService.delete(itemFind).then(Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT))))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
 }
