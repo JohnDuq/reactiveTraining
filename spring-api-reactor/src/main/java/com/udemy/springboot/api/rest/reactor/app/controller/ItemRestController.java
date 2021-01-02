@@ -116,7 +116,7 @@ public class ItemRestController {
             item.setCreateAt(new Date());
         }
         item.setPhoto(UUID.randomUUID().toString().concat("-")
-                .concat(filePart.filename().replace(" ", "_").replace(":", "").replace("//", "")));
+                .concat(filePart.filename().replace(" ", "_").replace(":", "").replace("\\", "")));
         return filePart.transferTo(new File(configUploadPath.concat("/").concat(item.getPhoto())))
                 .then(iItemService.save(item))
                 .map(itemSaved -> ResponseEntity
@@ -131,7 +131,7 @@ public class ItemRestController {
         return iItemService.findById(id).flatMap(itemFind -> {
 
             itemFind.setPhoto(UUID.randomUUID().toString().concat("-")
-                    .concat(filePart.filename().replace(" ", "_").replace(":", "").replace("//", "")));
+                    .concat(filePart.filename().replace(" ", "_").replace(":", "").replace("\\", "")));
 
             return filePart.transferTo(new File(configUploadPath.concat("/").concat(itemFind.getPhoto())))
                     .then(iItemService.save(itemFind));

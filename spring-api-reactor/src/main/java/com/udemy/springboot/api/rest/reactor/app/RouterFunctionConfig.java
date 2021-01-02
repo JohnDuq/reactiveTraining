@@ -28,7 +28,9 @@ public class RouterFunctionConfig {
                         .andRoute(POST(DataCommon.COLLECTION_API_ITEM_VS2), itemHandler::itemSave)
                         .andRoute(PUT(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID)), itemHandler::itemEdit)
                         .andRoute(DELETE(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID)),
-                                itemHandler::itemDelete);
+                                itemHandler::itemDelete)
+                        .andRoute(POST(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.UPLOAD_ID)),
+                                        itemHandler::itemPhotoUpload);
     }
 
 }
