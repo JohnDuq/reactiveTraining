@@ -21,8 +21,9 @@ public class RouterFunctionConfig {
 
     @Bean
     public RouterFunction<ServerResponse> routes(ItemHandler itemHandler) {
-        return route(GET(DataCommon.COLLECTION_API_ITEM_VS2).or(GET(DataCommon.COLLECTION_API_ITEM_VS2_OR)),
-                itemHandler::itemList)
+        return route(
+                        GET(DataCommon.COLLECTION_API_ITEM_VS2).or(GET(DataCommon.COLLECTION_API_ITEM_VS2_OR)),
+                                itemHandler::itemList)
                         .andRoute(GET(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID))
                                 .and(contentType(MediaType.APPLICATION_JSON)), itemHandler::itemDetail)
                         .andRoute(POST(DataCommon.COLLECTION_API_ITEM_VS2), itemHandler::itemSave)
@@ -30,7 +31,10 @@ public class RouterFunctionConfig {
                         .andRoute(DELETE(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID)),
                                 itemHandler::itemDelete)
                         .andRoute(POST(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.UPLOAD_ID)),
-                                        itemHandler::itemPhotoUpload);
+                                        itemHandler::itemPhotoUpload)
+                        .andRoute(POST(DataCommon.COLLECTION_API_ITEM_VS2.concat("/func")
+                                        .concat(DataCommon.POST_ITEM_V2)),
+                                        itemHandler::itemSavePhotoUpload);
     }
 
 }

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import com.udemy.springboot.api.rest.reactor.app.common.DataCommon;
+import com.udemy.springboot.api.rest.reactor.app.model.documents.Brand;
 import com.udemy.springboot.api.rest.reactor.app.model.documents.Item;
 import com.udemy.springboot.api.rest.reactor.app.service.IItemService;
 
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.FormFieldPart;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -53,6 +55,29 @@ public class ItemHandler {
             .created(URI.create(DataCommon.COLLECTION_API_ITEM_VS2.concat("/").concat(itemSaved.getId())))
             .contentType(MediaType.APPLICATION_JSON).bodyValue(itemSaved))
         .switchIfEmpty(ServerResponse.notFound().build());
+    }
+
+    public Mono<ServerResponse> itemSavePhotoUpload(ServerRequest serverRequest) {
+        Mono<Item> mnItem = serverRequest.multipartData().map(multiPart -> {
+            FormFieldPart ffpName = (FormFieldPart) multiPart.toSingleValueMap().get("name");
+            FormFieldPart ffpPrice = (FormFieldPart) multiPart.toSingleValueMap().get("price");
+            FormFieldPart ffpBrandId = (FormFieldPart) multiPart.toSingleValueMap().get("brand.id");
+            FormFieldPart ffpBrandName = (FormFieldPart) multiPart.toSingleValueMap().get("brand.name");
+            Brand brand = new Brand(ffpBrandId.value(), ffpBrandName.value());
+            return new Item(ffpName.value(), Double.parseDouble(ffpPrice.value()), brand);
+        });
+        return serverRequest.multipartData()
+        .map(multiPart -> multiPart.toSingleValueMap().get("filePart"))
+        .cast(FilePart.class)
+        .flatMap(filePart -> mnItem.flatMap(itemFind -> {
+            itemFind.setPhoto(UUID.randomUUID().toString().concat("-")
+                    .concat(filePart.filename().replace(" ", "_").replace(":", "").replace("\\", "")));
+            return filePart.transferTo(new File(configUploadPath.concat("/").concat(itemFind.getPhoto())))
+                    .then(iItemService.save(itemFind));
+            }))
+        .flatMap(itemSaved -> ServerResponse
+            .created(URI.create(DataCommon.COLLECTION_API_ITEM_VS2.concat("/").concat(itemSaved.getId())))
+            .contentType(MediaType.APPLICATION_JSON).bodyValue(itemSaved));
     }
 
     public Mono<ServerResponse> itemSave(ServerRequest serverRequest) {
