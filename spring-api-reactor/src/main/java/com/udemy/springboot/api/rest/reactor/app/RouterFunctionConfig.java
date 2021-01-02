@@ -3,6 +3,7 @@ package com.udemy.springboot.api.rest.reactor.app;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RequestPredicates.PUT;
+import static org.springframework.web.reactive.function.server.RequestPredicates.DELETE;
 import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -25,7 +26,9 @@ public class RouterFunctionConfig {
                         .andRoute(GET(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID))
                                 .and(contentType(MediaType.APPLICATION_JSON)), itemHandler::itemDetail)
                         .andRoute(POST(DataCommon.COLLECTION_API_ITEM_VS2), itemHandler::itemSave)
-                        .andRoute(PUT(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID)), itemHandler::itemEdit);
+                        .andRoute(PUT(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID)), itemHandler::itemEdit)
+                        .andRoute(DELETE(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID)),
+                                itemHandler::itemDelete);
     }
 
 }

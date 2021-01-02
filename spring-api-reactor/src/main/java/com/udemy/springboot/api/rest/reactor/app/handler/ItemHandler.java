@@ -59,4 +59,11 @@ public class ItemHandler {
         .switchIfEmpty(ServerResponse.notFound().build());
     }
 
+    public Mono<ServerResponse> itemDelete(ServerRequest serverRequest) {
+        return iItemService.findById(serverRequest.pathVariable("id"))
+                .flatMap(item -> iItemService.delete(item).then(ServerResponse.noContent().build()))
+                .switchIfEmpty(ServerResponse.notFound().build());
+    }
+
+
 }
