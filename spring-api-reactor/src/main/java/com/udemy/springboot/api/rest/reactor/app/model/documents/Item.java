@@ -34,6 +34,7 @@ public class Item {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createAt;
     @Valid
+    @NotNull
     private Brand brand;
     private String photo;
 
