@@ -22,14 +22,13 @@ public class ItemHandler {
     private IItemService iItemService;
 
     public Mono<ServerResponse> itemList(ServerRequest serverRequest) {
-        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(iItemService.findAll(),
-                Item.class);
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(iItemService.findAll(), Item.class);
     }
 
     public Mono<ServerResponse> itemDetail(ServerRequest serverRequest) {
         String id = serverRequest.pathVariable("id");
-        return iItemService.findById(id).flatMap(itemFind -> ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON).bodyValue(itemFind))
+        return iItemService.findById(id)
+                .flatMap(itemFind -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).bodyValue(itemFind))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 
@@ -42,6 +41,22 @@ public class ItemHandler {
         }).flatMap(itemSaved -> ServerResponse
                 .created(URI.create(DataCommon.COLLECTION_API_ITEM_VS2.concat("/").concat(itemSaved.getId())))
                 .contentType(MediaType.APPLICATION_JSON).bodyValue(itemSaved));
+    }
+
+    public Mono<ServerResponse> itemEdit(ServerRequest serverRequest) {
+        Mono<Item> mnItemReq = serverRequest.bodyToMono(Item.class);
+        String id = serverRequest.pathVariable("id");
+        Mono<Item> mnItemFind = iItemService.findById(id);
+
+        return mnItemFind.zipWith(mnItemReq, (dbItem, reqItem) -> {
+            dbItem.setName(reqItem.getName());
+            dbItem.setPrice(reqItem.getPrice());
+            dbItem.setBrand(reqItem.getBrand());
+            return dbItem;
+        }).flatMap(item -> ServerResponse
+                .created(URI.create(DataCommon.COLLECTION_API_ITEM_VS2.concat("/").concat(item.getId())))
+                .contentType(MediaType.APPLICATION_JSON).body(iItemService.save(item), Item.class))
+        .switchIfEmpty(ServerResponse.notFound().build());
     }
 
 }
