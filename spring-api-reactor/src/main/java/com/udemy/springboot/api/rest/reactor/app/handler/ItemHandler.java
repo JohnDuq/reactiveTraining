@@ -6,19 +6,26 @@ import java.util.Date;
 import java.util.UUID;
 
 import com.udemy.springboot.api.rest.reactor.app.common.DataCommon;
+import com.udemy.springboot.api.rest.reactor.app.controller.data.ErrorBadRequestResponse;
+import com.udemy.springboot.api.rest.reactor.app.controller.data.ErrorResponse;
 import com.udemy.springboot.api.rest.reactor.app.model.documents.Brand;
 import com.udemy.springboot.api.rest.reactor.app.model.documents.Item;
 import com.udemy.springboot.api.rest.reactor.app.service.IItemService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.FormFieldPart;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Controller
@@ -28,6 +35,8 @@ public class ItemHandler {
     private IItemService iItemService;
     @Value("${config.upload.path}")
     private String configUploadPath;
+    @Autowired
+    private Validator validator;
 
     public Mono<ServerResponse> itemList(ServerRequest serverRequest) {
         return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(iItemService.findAll(), Item.class);
@@ -83,12 +92,30 @@ public class ItemHandler {
     public Mono<ServerResponse> itemSave(ServerRequest serverRequest) {
         Mono<Item> mnItem = serverRequest.bodyToMono(Item.class);
         return mnItem.flatMap(item -> {
-            if (item.getCreateAt() == null)
-                item.setCreateAt(new Date());
-            return iItemService.save(item);
-        }).flatMap(itemSaved -> ServerResponse
-                .created(URI.create(DataCommon.COLLECTION_API_ITEM_VS2.concat("/").concat(itemSaved.getId())))
-                .contentType(MediaType.APPLICATION_JSON).bodyValue(itemSaved));
+            Errors errors = new BeanPropertyBindingResult(item, Item.class.getName());
+            validator.validate(item, errors);
+            if(errors.hasErrors()) {
+                return Flux.fromIterable(errors.getFieldErrors())
+                    .map(fieldError -> {
+                        return new ErrorBadRequestResponse(fieldError, HttpStatus.BAD_REQUEST);
+                    })
+                    .collectList()
+                    .flatMap(listErrors -> 
+                        ServerResponse.badRequest()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), listErrors))
+                    );
+            } else {
+
+                if (item.getCreateAt() == null)
+                    item.setCreateAt(new Date());
+
+                return iItemService.save(item)
+                        .flatMap(itemSaved -> ServerResponse
+                        .created(URI.create(DataCommon.COLLECTION_API_ITEM_VS2.concat("/").concat(itemSaved.getId())))
+                        .contentType(MediaType.APPLICATION_JSON).bodyValue(itemSaved));
+            }
+        });
     }
 
     public Mono<ServerResponse> itemEdit(ServerRequest serverRequest) {
