@@ -12,6 +12,8 @@ public class DataCommon {
     public static final String POST_ITEM_VALID_V2 = "/valid/v2";
 
     public static final String COLLECTION_API_ITEM = "/api/item";
+    public static final String COLLECTION_API_ITEM_VS2 = "/api-v2/item";
+    public static final String COLLECTION_API_ITEM_VS2_OR = "/api-v2-or/item";
     public static final String COLLECTION_ITEM = "item";
     public static final String COLLECTION_BRAND = "brand";
 }
