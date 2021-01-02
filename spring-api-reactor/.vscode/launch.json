@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringApiReactorApplication<spring-api-reactor>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.udemy.springboot.api.rest.reactor.app.SpringApiReactorApplication",
+            "projectName": "spring-api-reactor",
+            "args": ""
+        }
+    ]
+}

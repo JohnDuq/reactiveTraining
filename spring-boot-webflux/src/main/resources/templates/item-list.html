@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title th:text="${title}"></title>
+    <div th:if="@{param.error != null}">
+        <h2 th:text="${param.error}" ></h2>
+    </div>
+    <div th:if="@{param.success != null}">
+        <h2 th:text="${param.success}"></h2>
+    </div>
+</head>
+
+<body>
+    <a th:href="@{/form}">Create New</a>
+    <h1 th:text="${title}"></h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>NAME</th>
+                <th>PRICE</th>
+                <th>DATE</th>
+                <th>TYPE</th>
+                <th>COMMAND</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${items}">
+                <th>
+                    <a th:href="@{/detail/} + ${item.id}" th:text="${#strings.abbreviate(item.id, 18)}"></a>
+                </th>
+                <th th:text="${item.name}"></th>
+                <th th:text="${#numbers.formatCurrency(item.price)}"></th>
+                <th th:text="${#calendars.format(item.createAt, 'dd/MM/yyyy')}"></th>
+                <th th:text="${item.brand.name}"></th>
+                <th>
+                    <a th:href="@{/form/} + ${item.id}">Edit</a>
+                    <a th:href="@{/form-v2/} + ${item.id}">Edit 2</a>
+                    <a th:href="@{/delete/} + ${item.id}" onclick="return confirm('are you sure?');">Delete</a>
+                </th>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title th:text="${title}"></title>
+</head>
+
+<body>
+    <a th:href="@{/item-list}">Item List</a>
+    <h1 th:text="${title}"></h1>
+    <div>
+        <div>
+            <img th:if="@{item.photo != null && #strings.length(item.photo) > 0}"
+                th:src="@{/uploads/img/} + ${item.photo}" th:alt="${item.name}"
+                style="max-width: 25%;">
+        </div>
+        <ul>
+            <li th:text="'ID: '+${item.id}"></li>
+            <li th:text="'NAME: '+${item.name}"></li>
+            <li th:text="'PRICE: '+${#numbers.formatCurrency(item.price)}"></li>
+            <li th:text="'DATE: '+${#calendars.format(item.createAt, 'dd/MM/yyyy')}"></li>
+        </ul>
+    </div>
+</body>
+
+</html>
