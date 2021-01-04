@@ -189,4 +189,16 @@ public class SpringApiReactorApplicationTest {
                 });
     }
 
+    @Test
+	void deleteItem() {
+        String name = "PLAYSTATION 4";
+        Item item = iItemService.buscarPorNombre(name).block();
+
+        webTestClient
+			.delete()
+            .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), Collections.singletonMap("id", item.getId()))
+			.exchange()
+			.expectStatus().isNoContent();
+    }
+
 }
