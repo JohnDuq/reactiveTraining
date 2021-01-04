@@ -198,7 +198,15 @@ public class SpringApiReactorApplicationTest {
 			.delete()
             .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), Collections.singletonMap("id", item.getId()))
 			.exchange()
-			.expectStatus().isNoContent();
+            .expectStatus().isNoContent()
+            .expectBody().isEmpty();
+        
+        webTestClient.get()
+            .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), Collections.singletonMap("id", item.getId()))
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isNotFound()
+            .expectBody().isEmpty();
     }
 
 }
