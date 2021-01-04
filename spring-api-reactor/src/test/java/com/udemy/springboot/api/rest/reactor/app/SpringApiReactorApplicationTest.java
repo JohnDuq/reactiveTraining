@@ -140,4 +140,53 @@ public class SpringApiReactorApplicationTest {
                 });
     }
 
+    @Test
+	void putItem() {
+        String name = "XBOX SERIES X";
+        Item item = iItemService.buscarPorNombre(name).block();
+        item.setName("EDITADO");
+        item.setPrice(54321d);
+
+        webTestClient
+			.put()
+            .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), Collections.singletonMap("id", item.getId()))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(Mono.just(item), Item.class)
+			.exchange()
+			.expectHeader().contentType(MediaType.APPLICATION_JSON)
+			.expectStatus().isCreated()
+            .expectBody()
+                .jsonPath("$.id").isNotEmpty()
+                .jsonPath("$.name").isEqualTo(item.getName())
+                .jsonPath("$.price").isEqualTo(item.getPrice())
+                .jsonPath("$.brand.id", item.getBrand().getId());
+    }
+
+    @Test
+	void putItem2() {
+        String name = "XBOX 360";
+        Item item = iItemService.buscarPorNombre(name).block();
+        item.setName("EDITADO");
+        item.setPrice(54321d);
+
+        webTestClient
+			.put()
+            .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), Collections.singletonMap("id", item.getId()))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(Mono.just(item), Item.class)
+			.exchange()
+			.expectHeader().contentType(MediaType.APPLICATION_JSON)
+			.expectStatus().isCreated()
+            .expectBody(Item.class)
+                .consumeWith(response -> {
+                    Item itemResponse = response.getResponseBody();
+                    Assertions.assertThat(itemResponse.getId()).isNotEmpty();
+                    Assertions.assertThat(itemResponse.getName()).isEqualTo(item.getName());
+                    Assertions.assertThat(itemResponse.getPrice()).isEqualTo(item.getPrice());
+                    Assertions.assertThat(itemResponse.getBrand().getId()).isEqualTo(item.getBrand().getId());
+                });
+    }
+
 }
