@@ -31,4 +31,9 @@ public class BrandServiceImpl implements IBrandService {
         return brandDao.save(type);
     }
 
+    @Override
+    public Mono<Brand> findByName(String name) {
+        return brandDao.findByName(name);
+    }
+
 }

@@ -13,4 +13,6 @@ public interface IBrandService {
 
     public Mono<Brand> save(Brand type);
 
+    public Mono<Brand> findByName(String name);
+
 }
