@@ -3,7 +3,7 @@ package com.udemy.springboot.api.rest.reactor.app;
 import java.util.Collections;
 import java.util.List;
 
-import com.udemy.springboot.api.rest.reactor.app.common.DataCommon;
+import com.udemy.springboot.api.rest.reactor.app.common.Path;
 import com.udemy.springboot.api.rest.reactor.app.model.documents.Brand;
 import com.udemy.springboot.api.rest.reactor.app.model.documents.Item;
 import com.udemy.springboot.api.rest.reactor.app.service.IBrandService;
@@ -34,7 +34,7 @@ public class SpringApiReactorApplicationTest {
     void itemList() {
         webTestClient
             .get()
-            .uri(DataCommon.COLLECTION_API_ITEM_VS2)
+            .uri(Path.API_ITEM)
             .accept(MediaType.APPLICATION_JSON).exchange()
             .expectHeader()
             .contentType(MediaType.APPLICATION_JSON)
@@ -47,7 +47,7 @@ public class SpringApiReactorApplicationTest {
     void itemList2() {
         webTestClient
             .get()
-            .uri(DataCommon.COLLECTION_API_ITEM_VS2)
+            .uri(Path.API_ITEM)
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -68,7 +68,7 @@ public class SpringApiReactorApplicationTest {
         Item itemFind = iItemService.buscarPorNombre(name).block();
         webTestClient
             .get()
-            .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), Collections.singletonMap("id", itemFind.getId()))
+            .uri(Path.API_ITEM.concat(Path.ID), Collections.singletonMap("id", itemFind.getId()))
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -83,7 +83,7 @@ public class SpringApiReactorApplicationTest {
         String name = "PLAYSTATION 5";
         Item itemFind = iItemService.buscarPorNombre(name).block();
         webTestClient.get()
-                .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), 
+                .uri(Path.API_ITEM.concat(Path.ID), 
                     Collections.singletonMap("id", itemFind.getId()))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange().expectHeader()
@@ -103,7 +103,7 @@ public class SpringApiReactorApplicationTest {
         Item item = new Item("TEST", 1234567980d, brand);
         webTestClient
 			.post()
-            .uri(DataCommon.COLLECTION_API_ITEM)
+            .uri(Path.API_ITEM)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .body(Mono.just(item), Item.class)
@@ -123,7 +123,7 @@ public class SpringApiReactorApplicationTest {
         Item item = new Item("TEST", 1234567980d, brand);
         webTestClient
 			.post()
-            .uri(DataCommon.COLLECTION_API_ITEM)
+            .uri(Path.API_ITEM)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .body(Mono.just(item), Item.class)
@@ -149,7 +149,7 @@ public class SpringApiReactorApplicationTest {
 
         webTestClient
 			.put()
-            .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), Collections.singletonMap("id", item.getId()))
+            .uri(Path.API_ITEM.concat(Path.ID), Collections.singletonMap("id", item.getId()))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .body(Mono.just(item), Item.class)
@@ -172,7 +172,7 @@ public class SpringApiReactorApplicationTest {
 
         webTestClient
 			.put()
-            .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), Collections.singletonMap("id", item.getId()))
+            .uri(Path.API_ITEM.concat(Path.ID), Collections.singletonMap("id", item.getId()))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .body(Mono.just(item), Item.class)
@@ -196,13 +196,13 @@ public class SpringApiReactorApplicationTest {
 
         webTestClient
 			.delete()
-            .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), Collections.singletonMap("id", item.getId()))
+            .uri(Path.API_ITEM.concat(Path.ID), Collections.singletonMap("id", item.getId()))
 			.exchange()
             .expectStatus().isNoContent()
             .expectBody().isEmpty();
         
         webTestClient.get()
-            .uri(DataCommon.COLLECTION_API_ITEM.concat(DataCommon.ID), Collections.singletonMap("id", item.getId()))
+            .uri(Path.API_ITEM.concat(Path.ID), Collections.singletonMap("id", item.getId()))
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus().isNotFound()

@@ -2,7 +2,7 @@ package com.udemy.springboot.api.rest.reactor.app;
 
 import java.util.Date;
 
-import com.udemy.springboot.api.rest.reactor.app.common.DataCommon;
+import com.udemy.springboot.api.rest.reactor.app.common.DocumentCollection;
 import com.udemy.springboot.api.rest.reactor.app.model.documents.Brand;
 import com.udemy.springboot.api.rest.reactor.app.model.documents.Item;
 import com.udemy.springboot.api.rest.reactor.app.service.IBrandService;
@@ -35,8 +35,8 @@ public class SpringApiReactorApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		reactiveMongoTemplate.dropCollection(DataCommon.COLLECTION_ITEM).subscribe();
-		reactiveMongoTemplate.dropCollection(DataCommon.COLLECTION_BRAND).subscribe();
+		reactiveMongoTemplate.dropCollection(DocumentCollection.COLLECTION_ITEM).subscribe();
+		reactiveMongoTemplate.dropCollection(DocumentCollection.COLLECTION_BRAND).subscribe();
 
 		Brand sonyType = new Brand("SONY");
 		Brand microsoftType = new Brand("MICROSOFT");

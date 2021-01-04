@@ -2,7 +2,7 @@ package com.udemy.springboot.api.rest.reactor.app.model.documents;
 
 import javax.validation.constraints.NotEmpty;
 
-import com.udemy.springboot.api.rest.reactor.app.common.DataCommon;
+import com.udemy.springboot.api.rest.reactor.app.common.DocumentCollection;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Document(collection = DataCommon.COLLECTION_BRAND)
+@Document(collection = DocumentCollection.COLLECTION_BRAND)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter

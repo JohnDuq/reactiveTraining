@@ -5,7 +5,7 @@ import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
 
-import com.udemy.springboot.api.rest.reactor.app.common.DataCommon;
+import com.udemy.springboot.api.rest.reactor.app.common.Path;
 import com.udemy.springboot.api.rest.reactor.app.controller.data.ErrorBadRequestResponse;
 import com.udemy.springboot.api.rest.reactor.app.controller.data.ErrorResponse;
 import com.udemy.springboot.api.rest.reactor.app.model.documents.Brand;
@@ -61,7 +61,7 @@ public class ItemHandler {
                     .then(iItemService.save(itemFind));
             }))
         .flatMap(itemSaved -> ServerResponse
-            .created(URI.create(DataCommon.COLLECTION_API_ITEM_VS2.concat("/").concat(itemSaved.getId())))
+            .created(URI.create(Path.API_V2_ITEM.concat("/").concat(itemSaved.getId())))
             .contentType(MediaType.APPLICATION_JSON).bodyValue(itemSaved))
         .switchIfEmpty(ServerResponse.notFound().build());
     }
@@ -85,7 +85,7 @@ public class ItemHandler {
                     .then(iItemService.save(itemFind));
             }))
         .flatMap(itemSaved -> ServerResponse
-            .created(URI.create(DataCommon.COLLECTION_API_ITEM_VS2.concat("/").concat(itemSaved.getId())))
+            .created(URI.create(Path.API_V2_ITEM.concat("/").concat(itemSaved.getId())))
             .contentType(MediaType.APPLICATION_JSON).bodyValue(itemSaved));
     }
 
@@ -112,7 +112,7 @@ public class ItemHandler {
 
                 return iItemService.save(item)
                         .flatMap(itemSaved -> ServerResponse
-                        .created(URI.create(DataCommon.COLLECTION_API_ITEM_VS2.concat("/").concat(itemSaved.getId())))
+                        .created(URI.create(Path.API_V2_ITEM.concat("/").concat(itemSaved.getId())))
                         .contentType(MediaType.APPLICATION_JSON).bodyValue(itemSaved));
             }
         });
@@ -129,7 +129,7 @@ public class ItemHandler {
             dbItem.setBrand(reqItem.getBrand());
             return dbItem;
         }).flatMap(item -> ServerResponse
-                .created(URI.create(DataCommon.COLLECTION_API_ITEM_VS2.concat("/").concat(item.getId())))
+                .created(URI.create(Path.API_V2_ITEM.concat("/").concat(item.getId())))
                 .contentType(MediaType.APPLICATION_JSON).body(iItemService.save(item), Item.class))
         .switchIfEmpty(ServerResponse.notFound().build());
     }

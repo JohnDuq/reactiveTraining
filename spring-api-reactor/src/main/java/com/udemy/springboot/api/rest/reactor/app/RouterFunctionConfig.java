@@ -7,7 +7,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
-import com.udemy.springboot.api.rest.reactor.app.common.DataCommon;
+import com.udemy.springboot.api.rest.reactor.app.common.Path;
 import com.udemy.springboot.api.rest.reactor.app.handler.ItemHandler;
 
 import org.springframework.context.annotation.Bean;
@@ -22,18 +22,18 @@ public class RouterFunctionConfig {
     @Bean
     public RouterFunction<ServerResponse> routes(ItemHandler itemHandler) {
         return route(
-                        GET(DataCommon.COLLECTION_API_ITEM_VS2).or(GET(DataCommon.COLLECTION_API_ITEM_VS2_OR)),
+                        GET(Path.API_V2_ITEM).or(GET(Path.API_V2_OR_ITEM)),
                                 itemHandler::itemList)
-                        .andRoute(GET(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID))
+                        .andRoute(GET(Path.API_V2_ITEM.concat(Path.ID))
                                 .and(contentType(MediaType.APPLICATION_JSON)), itemHandler::itemDetail)
-                        .andRoute(POST(DataCommon.COLLECTION_API_ITEM_VS2), itemHandler::itemSave)
-                        .andRoute(PUT(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID)), itemHandler::itemEdit)
-                        .andRoute(DELETE(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.ID)),
+                        .andRoute(POST(Path.API_V2_ITEM), itemHandler::itemSave)
+                        .andRoute(PUT(Path.API_V2_ITEM.concat(Path.ID)), itemHandler::itemEdit)
+                        .andRoute(DELETE(Path.API_V2_ITEM.concat(Path.ID)),
                                 itemHandler::itemDelete)
-                        .andRoute(POST(DataCommon.COLLECTION_API_ITEM_VS2.concat(DataCommon.UPLOAD_ID)),
+                        .andRoute(POST(Path.API_V2_ITEM.concat(Path.UPLOAD_ID)),
                                         itemHandler::itemPhotoUpload)
-                        .andRoute(POST(DataCommon.COLLECTION_API_ITEM_VS2.concat("/func")
-                                        .concat(DataCommon.POST_ITEM_V2)),
+                        .andRoute(POST(Path.API_V2_ITEM.concat("/func")
+                                        .concat(Path.UPLOAD_V2)),
                                         itemHandler::itemSavePhotoUpload);
     }
 
