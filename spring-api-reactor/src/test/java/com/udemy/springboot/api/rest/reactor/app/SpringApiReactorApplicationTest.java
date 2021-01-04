@@ -19,7 +19,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class RouterFunctionConfigTest {
+public class SpringApiReactorApplicationTest {
 
     @Autowired
     private WebTestClient webTestClient;
