@@ -110,11 +110,33 @@ public class RouterFunctionConfigTest {
 			.exchange()
 			.expectHeader().contentType(MediaType.APPLICATION_JSON)
 			.expectStatus().isCreated()
+            .expectBody()
+                .jsonPath("$.id").isNotEmpty()
+                .jsonPath("$.name").isEqualTo(item.getName())
+                .jsonPath("$.price").isEqualTo(item.getPrice())
+                .jsonPath("$.brand.id", item.getBrand().getId());
+    }
+
+    @Test
+	void postItem2() {
+        Brand brand = iBrandService.findByName("SONY").block();
+        Item item = new Item("TEST", 1234567980d, brand);
+        webTestClient
+			.post()
+            .uri(DataCommon.COLLECTION_API_ITEM)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(Mono.just(item), Item.class)
+			.exchange()
+			.expectHeader().contentType(MediaType.APPLICATION_JSON)
+			.expectStatus().isCreated()
             .expectBody(Item.class)
                 .consumeWith(response -> {
                     Item itemResponse = response.getResponseBody();
                     Assertions.assertThat(itemResponse.getId()).isNotEmpty();
                     Assertions.assertThat(itemResponse.getName()).isEqualTo(item.getName());
+                    Assertions.assertThat(itemResponse.getPrice()).isEqualTo(item.getPrice());
+                    Assertions.assertThat(itemResponse.getBrand().getId()).isEqualTo(item.getBrand().getId());
                 });
     }
 
