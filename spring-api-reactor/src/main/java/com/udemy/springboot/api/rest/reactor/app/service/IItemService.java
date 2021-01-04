@@ -21,4 +21,8 @@ public interface IItemService {
 
     public Mono<Void> delete(String id);
 
+    public Mono<Item> findByName(String name);
+
+    public Mono<Item> buscarPorNombre(String name);
+
 }

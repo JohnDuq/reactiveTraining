@@ -55,4 +55,14 @@ public class ItemServiceImpl implements IItemService {
         return itemDao.deleteById(id);
     }
 
+    @Override
+    public Mono<Item> findByName(String name) {
+        return itemDao.findByName(name);
+    }
+
+    @Override
+    public Mono<Item> buscarPorNombre(String name) {
+        return itemDao.buscarPorNombre(name);
+    }
+
 }
