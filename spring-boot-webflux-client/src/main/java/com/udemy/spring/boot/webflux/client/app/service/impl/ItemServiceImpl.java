@@ -9,6 +9,7 @@ import com.udemy.spring.boot.webflux.client.app.service.IItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import reactor.core.publisher.Flux;
@@ -40,7 +41,7 @@ public class ItemServiceImpl implements IItemService {
         return webClient.post()
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(item, Item.class)
+            .bodyValue(item)
             .exchangeToMono(response -> response.bodyToMono(Item.class));
     }
 
@@ -50,7 +51,7 @@ public class ItemServiceImpl implements IItemService {
             .uri(Path.ID, Collections.singletonMap("id", id))
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(item, Item.class)
+            .bodyValue(item)
             .exchangeToMono(response -> response.bodyToMono(Item.class));
     }
 

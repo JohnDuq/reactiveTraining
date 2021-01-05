@@ -1,5 +1,8 @@
 package com.udemy.spring.boot.webflux.client.app.handler;
 
+import java.net.URI;
+
+import com.udemy.spring.boot.webflux.client.app.common.Path;
 import com.udemy.spring.boot.webflux.client.app.model.documents.Item;
 import com.udemy.spring.boot.webflux.client.app.service.IItemService;
 
@@ -33,5 +36,30 @@ public class ItemHandler {
             .switchIfEmpty(ServerResponse.notFound().build());
     }
 
+
+    public Mono<ServerResponse> save(ServerRequest serverRequest) {
+        Mono<Item> item = serverRequest.bodyToMono(Item.class);
+        return item.flatMap(iItemService::save)
+            .flatMap(itemSaved -> 
+                ServerResponse.created(URI.create(Path.API_CLIENT.concat(Path.SLASH).concat(itemSaved.getId())))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(itemSaved)
+            );
+    }
+
+    public Mono<ServerResponse> update(ServerRequest serverRequest) {
+        String id = serverRequest.pathVariable("id");
+        Mono<Item> itemRequest = serverRequest.bodyToMono(Item.class);
+        return itemRequest.flatMap(item -> iItemService.update(item, id))
+            .flatMap(itemSaved -> 
+                ServerResponse.created(URI.create(Path.API_CLIENT.concat(Path.SLASH).concat(id)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(itemSaved)
+            );
+    }
+
+    public Mono<ServerResponse> delete(ServerRequest serverRequest) {
+        return iItemService.delete(serverRequest.pathVariable("id")).then(ServerResponse.noContent().build());
+    }
 
 }

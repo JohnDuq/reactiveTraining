@@ -17,7 +17,10 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> routes(ItemHandler itemHandler){
         return RouterFunctions
             .route(RequestPredicates.GET(Path.API_CLIENT), itemHandler::findAll)
-            .andRoute(RequestPredicates.GET(Path.API_CLIENT.concat(Path.ID)), itemHandler::findById);
+            .andRoute(RequestPredicates.GET(Path.API_CLIENT.concat(Path.ID)), itemHandler::findById)
+            .andRoute(RequestPredicates.POST(Path.API_CLIENT), itemHandler::save)
+            .andRoute(RequestPredicates.PUT(Path.API_CLIENT.concat(Path.ID)), itemHandler::update)
+            .andRoute(RequestPredicates.DELETE(Path.API_CLIENT.concat(Path.ID)), itemHandler::delete);
     }
 
 }
