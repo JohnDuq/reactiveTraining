@@ -4,7 +4,9 @@ public class Path {
     private Path() {
     }
 
-    public static final String END_POINT = "http://localhost:8080/";
+    public static final String API_CLIENT = "/api/client";
+
+    public static final String END_POINT = "http://localhost:8080";
     public static final String SLASH = "/";
     public static final String ID = "/{id}";
 

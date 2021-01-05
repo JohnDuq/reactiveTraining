@@ -10,7 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class AppConfig {
 
     @Bean
-    public WebClient buiWebClient(){
+    public WebClient buildWebClient(){
         return WebClient.create(Path.END_POINT.concat(Path.API_ITEM));
     }
 

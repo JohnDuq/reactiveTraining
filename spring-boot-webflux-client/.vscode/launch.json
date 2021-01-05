@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringBootWebfluxClientApplication<spring-boot-webflux-client>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.udemy.spring.boot.webflux.client.app.SpringBootWebfluxClientApplication",
+            "projectName": "spring-boot-webflux-client",
+            "args": ""
+        }
+    ]
+}
