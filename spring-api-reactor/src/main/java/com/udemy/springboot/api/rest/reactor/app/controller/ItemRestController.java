@@ -58,8 +58,8 @@ public class ItemRestController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public Mono<ResponseEntity<Item>> postItem(@RequestBody Item item) {
+    @PostMapping(Path.NOT_VALID)
+    public Mono<ResponseEntity<Item>> postItemSimple(@RequestBody Item item) {
         if (item.getCreateAt() == null) {
             item.setCreateAt(new Date());
         }
@@ -90,24 +90,30 @@ public class ItemRestController {
                 }));
     }
 
-    @PostMapping(Path.VALID_V2)
-    public Mono<ResponseEntity<Item>> postItemValidV2(@Valid @RequestBody Mono<Item> mnItem) {
+    @PostMapping
+    public Mono<ResponseEntity<Item>> postItemValid2(@Valid @RequestBody Mono<Item> mnItem) {
         return mnItem.map(item -> {
             if (item.getCreateAt() == null)
                 item.setCreateAt(new Date());
             return item;
-        }).flatMap(iItemService::save).map(itemSaved -> ResponseEntity
+        }).flatMap(iItemService::save)
+            .map(itemSaved -> ResponseEntity
                 .created(URI.create(Path.API_ITEM.concat(Path.SLASH).concat(itemSaved.getId())))
                 .contentType(MediaType.APPLICATION_JSON).body(itemSaved));
     }
 
     @ExceptionHandler(WebExchangeBindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Mono<ResponseEntity<ErrorResponse>> handleExceptionValidV2(WebExchangeBindException ex) {
-        return Mono.just(ex).flatMap(exception -> Mono.just(exception.getFieldErrors())).flatMapMany(Flux::fromIterable)
-                .map(fieldError -> new ErrorBadRequestResponse(fieldError, HttpStatus.BAD_REQUEST)).collectList()
-                .flatMap(list -> Mono.just(
-                        ResponseEntity.badRequest().body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), list))));
+    public Mono<ResponseEntity<ErrorResponse>> handlerExceptionValid(
+            WebExchangeBindException webExchangeBindException) {
+        return Mono.just(webExchangeBindException)
+            .flatMap(exception -> Mono.just(exception.getFieldErrors()))
+            .flatMapMany(Flux::fromIterable)
+            .map(fieldError -> new ErrorBadRequestResponse(fieldError, HttpStatus.BAD_REQUEST))
+            .collectList()
+            .flatMap(list -> Mono.just(
+                ResponseEntity.badRequest()
+                    .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), list))));
     }
 
     @PostMapping(Path.UPLOAD_V2)

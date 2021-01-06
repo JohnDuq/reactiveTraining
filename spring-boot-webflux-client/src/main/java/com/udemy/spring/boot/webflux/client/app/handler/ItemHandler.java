@@ -7,8 +7,10 @@ import com.udemy.spring.boot.webflux.client.app.model.documents.Item;
 import com.udemy.spring.boot.webflux.client.app.service.IItemService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
@@ -43,8 +45,15 @@ public class ItemHandler {
             .flatMap(itemSaved -> 
                 ServerResponse.created(URI.create(Path.API_CLIENT.concat(Path.SLASH).concat(itemSaved.getId())))
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(itemSaved)
-            );
+                    .bodyValue(itemSaved))
+            .onErrorResume(WebClientResponseException.class, webClientResponseException -> {
+                if(HttpStatus.BAD_REQUEST.equals(webClientResponseException.getStatusCode())){
+                    return ServerResponse.badRequest().contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(webClientResponseException.getResponseBodyAsString());
+                } else {
+                    return Mono.error(webClientResponseException);
+                }
+            });
     }
 
     public Mono<ServerResponse> update(ServerRequest serverRequest) {

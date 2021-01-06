@@ -112,7 +112,7 @@ public class ItemHandler {
 
                 return iItemService.save(item)
                         .flatMap(itemSaved -> ServerResponse
-                        .created(URI.create(Path.API_V2_ITEM.concat("/").concat(itemSaved.getId())))
+                        .created(URI.create(Path.API_V2_ITEM.concat(Path.SLASH).concat(itemSaved.getId())))
                         .contentType(MediaType.APPLICATION_JSON).bodyValue(itemSaved));
             }
         });

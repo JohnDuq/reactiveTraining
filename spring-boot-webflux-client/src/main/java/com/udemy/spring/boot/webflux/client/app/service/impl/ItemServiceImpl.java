@@ -40,8 +40,9 @@ public class ItemServiceImpl implements IItemService {
         return webClient.post()
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(item)
-            .exchangeToMono(response -> response.bodyToMono(Item.class));
+            .syncBody(item)
+            .retrieve()
+            .bodyToMono(Item.class);
     }
 
     @Override
