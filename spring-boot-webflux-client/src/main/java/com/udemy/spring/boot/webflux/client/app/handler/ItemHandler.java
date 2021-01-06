@@ -1,6 +1,9 @@
 package com.udemy.spring.boot.webflux.client.app.handler;
 
 import java.net.URI;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.udemy.spring.boot.webflux.client.app.common.Path;
 import com.udemy.spring.boot.webflux.client.app.model.documents.Item;
@@ -36,7 +39,18 @@ public class ItemHandler {
                 ServerResponse.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(item))
-            .switchIfEmpty(ServerResponse.notFound().build());
+            //.switchIfEmpty(ServerResponse.notFound().build())
+            .onErrorResume(WebClientResponseException.class, webClientResponseException -> {
+                if(HttpStatus.NOT_FOUND.equals(webClientResponseException.getStatusCode())){
+                    Map<String, Object> body = new HashMap<>();
+                    body.put("error", "Item dont exist: ".concat(webClientResponseException.getMessage()));
+                    body.put("timestamp", new Date());
+                    body.put("status", webClientResponseException.getStatusCode().value());
+                    return ServerResponse.status(HttpStatus.NOT_FOUND).syncBody(body);
+                } else {
+                    return Mono.error(webClientResponseException);
+                }
+            });
     }
 
 
@@ -64,12 +78,26 @@ public class ItemHandler {
             .flatMap(itemSaved -> 
                 ServerResponse.created(URI.create(Path.API_CLIENT.concat(Path.SLASH).concat(id)))
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(itemSaved)
-            );
+                    .bodyValue(itemSaved))
+            .onErrorResume(WebClientResponseException.class, webClientResponseException -> {
+                if(HttpStatus.NOT_FOUND.equals(webClientResponseException.getStatusCode())){
+                    return ServerResponse.notFound().build();
+                } else {
+                    return Mono.error(webClientResponseException);
+                }
+            });
     }
 
     public Mono<ServerResponse> delete(ServerRequest serverRequest) {
-        return iItemService.delete(serverRequest.pathVariable("id")).then(ServerResponse.noContent().build());
+        return iItemService.delete(serverRequest.pathVariable("id"))
+            .then(ServerResponse.noContent().build())
+            .onErrorResume(WebClientResponseException.class, webClientResponseException -> {
+                if(HttpStatus.NOT_FOUND.equals(webClientResponseException.getStatusCode())){
+                    return ServerResponse.notFound().build();
+                } else {
+                    return Mono.error(webClientResponseException);
+                }
+            });
     }
 
     public Mono<ServerResponse> upload(ServerRequest serverRequest) {
@@ -81,7 +109,14 @@ public class ItemHandler {
             .flatMap(itemSaved -> ServerResponse
                 .created(URI.create(Path.API_CLIENT.concat(Path.SLASH).concat(itemSaved.getId())))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(itemSaved));
+                .bodyValue(itemSaved))
+            .onErrorResume(WebClientResponseException.class, webClientResponseException -> {
+                if(HttpStatus.NOT_FOUND.equals(webClientResponseException.getStatusCode())){
+                    return ServerResponse.notFound().build();
+                } else {
+                    return Mono.error(webClientResponseException);
+                }
+            });
             
     }
 
