@@ -9,6 +9,7 @@ import com.udemy.spring.boot.webflux.client.app.service.IItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -69,6 +70,19 @@ public class ItemHandler {
 
     public Mono<ServerResponse> delete(ServerRequest serverRequest) {
         return iItemService.delete(serverRequest.pathVariable("id")).then(ServerResponse.noContent().build());
+    }
+
+    public Mono<ServerResponse> upload(ServerRequest serverRequest) {
+        String id = serverRequest.pathVariable("id");
+        return serverRequest.multipartData()
+            .map(multiPart -> multiPart.toSingleValueMap().get("filePart"))
+            .cast(FilePart.class)
+            .flatMap(file -> iItemService.upload(file, id))
+            .flatMap(itemSaved -> ServerResponse
+                .created(URI.create(Path.API_CLIENT.concat(Path.SLASH).concat(itemSaved.getId())))
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(itemSaved));
+            
     }
 
 }

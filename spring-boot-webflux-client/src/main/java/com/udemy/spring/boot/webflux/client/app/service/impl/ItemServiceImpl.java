@@ -7,7 +7,10 @@ import com.udemy.spring.boot.webflux.client.app.model.documents.Item;
 import com.udemy.spring.boot.webflux.client.app.service.IItemService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -62,5 +65,20 @@ public class ItemServiceImpl implements IItemService {
             .exchange()
             .then();
     }
+
+	@Override
+	public Mono<Item> upload(FilePart filePart, String id) {
+        MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
+        multipartBodyBuilder.asyncPart("filePart", filePart.content(), DataBuffer.class)
+            .headers(h -> {
+                h.setContentDispositionFormData("filePart", filePart.filename());
+            });
+        return webClient.post()
+            .uri(Path.UPLOAD_ID, Collections.singletonMap("id", id))
+            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .syncBody(multipartBodyBuilder.build())
+            .retrieve()
+            .bodyToMono(Item.class);
+	}
 
 }

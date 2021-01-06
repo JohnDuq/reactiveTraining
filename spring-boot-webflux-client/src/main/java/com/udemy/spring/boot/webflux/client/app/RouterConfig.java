@@ -20,7 +20,8 @@ public class RouterConfig {
             .andRoute(RequestPredicates.GET(Path.API_CLIENT.concat(Path.ID)), itemHandler::findById)
             .andRoute(RequestPredicates.POST(Path.API_CLIENT), itemHandler::save)
             .andRoute(RequestPredicates.PUT(Path.API_CLIENT.concat(Path.ID)), itemHandler::update)
-            .andRoute(RequestPredicates.DELETE(Path.API_CLIENT.concat(Path.ID)), itemHandler::delete);
+            .andRoute(RequestPredicates.DELETE(Path.API_CLIENT.concat(Path.ID)), itemHandler::delete)
+            .andRoute(RequestPredicates.POST(Path.API_CLIENT.concat(Path.UPLOAD_ID)), itemHandler::upload);
     }
 
 }
