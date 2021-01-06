@@ -27,7 +27,8 @@ public class ItemServiceImpl implements IItemService {
     public Flux<Item> findAll() {
         return webClient.get()
             .accept(MediaType.APPLICATION_JSON)
-            .exchangeToFlux(response -> response.bodyToFlux(Item.class));
+            .retrieve()
+            .bodyToFlux(Item.class);
     }
 
     @Override
@@ -35,7 +36,8 @@ public class ItemServiceImpl implements IItemService {
         return webClient.get()
             .uri(Path.ID, Collections.singletonMap("id", id))
             .accept(MediaType.APPLICATION_JSON)
-            .exchangeToMono(response -> response.bodyToMono(Item.class));
+            .retrieve()
+            .bodyToMono(Item.class);
     }
 
     @Override
@@ -43,7 +45,7 @@ public class ItemServiceImpl implements IItemService {
         return webClient.post()
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
-            .syncBody(item)
+            .bodyValue(item)
             .retrieve()
             .bodyToMono(Item.class);
     }
@@ -55,15 +57,16 @@ public class ItemServiceImpl implements IItemService {
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(item)
-            .exchangeToMono(response -> response.bodyToMono(Item.class));
+            .retrieve()
+            .bodyToMono(Item.class);
     }
 
     @Override
     public Mono<Void> delete(String id) {
         return webClient.delete()
             .uri(Path.ID, Collections.singletonMap("id", id))
-            .exchange()
-            .then();
+            .retrieve()
+            .bodyToMono(Void.class);
     }
 
 	@Override
@@ -76,7 +79,7 @@ public class ItemServiceImpl implements IItemService {
         return webClient.post()
             .uri(Path.UPLOAD_ID, Collections.singletonMap("id", id))
             .contentType(MediaType.MULTIPART_FORM_DATA)
-            .syncBody(multipartBodyBuilder.build())
+            .bodyValue(multipartBodyBuilder.build())
             .retrieve()
             .bodyToMono(Item.class);
 	}
