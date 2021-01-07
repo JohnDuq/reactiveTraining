@@ -40,17 +40,7 @@ public class ItemHandler {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(item))
             //.switchIfEmpty(ServerResponse.notFound().build())
-            .onErrorResume(WebClientResponseException.class, webClientResponseException -> {
-                if(HttpStatus.NOT_FOUND.equals(webClientResponseException.getStatusCode())){
-                    Map<String, Object> body = new HashMap<>();
-                    body.put("error", "Item dont exist: ".concat(webClientResponseException.getMessage()));
-                    body.put("timestamp", new Date());
-                    body.put("status", webClientResponseException.getStatusCode().value());
-                    return ServerResponse.status(HttpStatus.NOT_FOUND).syncBody(body);
-                } else {
-                    return Mono.error(webClientResponseException);
-                }
-            });
+            .onErrorResume(WebClientResponseException.class, this::handlerWebClientResponseException);
     }
 
 
@@ -61,14 +51,7 @@ public class ItemHandler {
                 ServerResponse.created(URI.create(Path.API_CLIENT.concat(Path.SLASH).concat(itemSaved.getId())))
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(itemSaved))
-            .onErrorResume(WebClientResponseException.class, webClientResponseException -> {
-                if(HttpStatus.BAD_REQUEST.equals(webClientResponseException.getStatusCode())){
-                    return ServerResponse.badRequest().contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(webClientResponseException.getResponseBodyAsString());
-                } else {
-                    return Mono.error(webClientResponseException);
-                }
-            });
+            .onErrorResume(WebClientResponseException.class, this::handlerWebClientResponseException);
     }
 
     public Mono<ServerResponse> update(ServerRequest serverRequest) {
@@ -79,25 +62,13 @@ public class ItemHandler {
                 ServerResponse.created(URI.create(Path.API_CLIENT.concat(Path.SLASH).concat(id)))
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(itemSaved))
-            .onErrorResume(WebClientResponseException.class, webClientResponseException -> {
-                if(HttpStatus.NOT_FOUND.equals(webClientResponseException.getStatusCode())){
-                    return ServerResponse.notFound().build();
-                } else {
-                    return Mono.error(webClientResponseException);
-                }
-            });
+            .onErrorResume(WebClientResponseException.class, this::handlerWebClientResponseException);
     }
 
     public Mono<ServerResponse> delete(ServerRequest serverRequest) {
         return iItemService.delete(serverRequest.pathVariable("id"))
             .then(ServerResponse.noContent().build())
-            .onErrorResume(WebClientResponseException.class, webClientResponseException -> {
-                if(HttpStatus.NOT_FOUND.equals(webClientResponseException.getStatusCode())){
-                    return ServerResponse.notFound().build();
-                } else {
-                    return Mono.error(webClientResponseException);
-                }
-            });
+            .onErrorResume(WebClientResponseException.class, this::handlerWebClientResponseException);
     }
 
     public Mono<ServerResponse> upload(ServerRequest serverRequest) {
@@ -110,14 +81,25 @@ public class ItemHandler {
                 .created(URI.create(Path.API_CLIENT.concat(Path.SLASH).concat(itemSaved.getId())))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(itemSaved))
-            .onErrorResume(WebClientResponseException.class, webClientResponseException -> {
-                if(HttpStatus.NOT_FOUND.equals(webClientResponseException.getStatusCode())){
-                    return ServerResponse.notFound().build();
-                } else {
-                    return Mono.error(webClientResponseException);
-                }
-            });
-            
+            .onErrorResume(WebClientResponseException.class, this::handlerWebClientResponseException);
+    }
+
+    private Mono<ServerResponse> handlerWebClientResponseException(
+            WebClientResponseException webClientResponseException) {
+        if(HttpStatus.NOT_FOUND.equals(webClientResponseException.getStatusCode())){
+            Map<String, Object> body = new HashMap<>();
+            body.put("error", "Item dont exist: ".concat(webClientResponseException.getMessage()));
+            body.put("timestamp", new Date());
+            body.put("status", webClientResponseException.getStatusCode().value());
+            return ServerResponse.status(HttpStatus.NOT_FOUND).bodyValue(body);
+            // return ServerResponse.notFound().build();
+        } else if(HttpStatus.BAD_REQUEST.equals(webClientResponseException.getStatusCode())){
+            return ServerResponse.badRequest()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(webClientResponseException.getResponseBodyAsString());
+        } else {
+            return Mono.error(webClientResponseException);
+        }
     }
 
 }
