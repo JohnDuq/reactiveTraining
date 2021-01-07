@@ -21,11 +21,11 @@ import reactor.core.publisher.Mono;
 public class ItemServiceImpl implements IItemService {
 
     @Autowired
-    private WebClient webClient;
+    private WebClient.Builder webClient;
 
     @Override
     public Flux<Item> findAll() {
-        return webClient.get()
+        return webClient.build().get()
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
             .bodyToFlux(Item.class);
@@ -33,7 +33,7 @@ public class ItemServiceImpl implements IItemService {
 
     @Override
     public Mono<Item> findById(String id) {
-        return webClient.get()
+        return webClient.build().get()
             .uri(Path.ID, Collections.singletonMap("id", id))
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
@@ -42,7 +42,7 @@ public class ItemServiceImpl implements IItemService {
 
     @Override
     public Mono<Item> save(Item item) {
-        return webClient.post()
+        return webClient.build().post()
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(item)
@@ -52,7 +52,7 @@ public class ItemServiceImpl implements IItemService {
 
     @Override
     public Mono<Item> update(Item item, String id) {
-        return webClient.put()
+        return webClient.build().put()
             .uri(Path.ID, Collections.singletonMap("id", id))
             .accept(MediaType.APPLICATION_JSON)
             .contentType(MediaType.APPLICATION_JSON)
@@ -63,7 +63,7 @@ public class ItemServiceImpl implements IItemService {
 
     @Override
     public Mono<Void> delete(String id) {
-        return webClient.delete()
+        return webClient.build().delete()
             .uri(Path.ID, Collections.singletonMap("id", id))
             .retrieve()
             .bodyToMono(Void.class);
@@ -76,7 +76,7 @@ public class ItemServiceImpl implements IItemService {
             .headers(h -> {
                 h.setContentDispositionFormData("filePart", filePart.filename());
             });
-        return webClient.post()
+        return webClient.build().post()
             .uri(Path.UPLOAD_ID, Collections.singletonMap("id", id))
             .contentType(MediaType.MULTIPART_FORM_DATA)
             .bodyValue(multipartBodyBuilder.build())

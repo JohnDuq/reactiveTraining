@@ -1,6 +1,7 @@
 package com.udemy.spring.boot.webflux.client.app.common;
 
 public class Path {
+
     private Path() {
     }
 
